@@ -1,0 +1,59 @@
+version: '3.7'
+services:
+  web: 
+    container_name: web
+    image: php:8-apache
+    ports:
+      - '80:80'
+    volumes:
+      - ./app:/var/www/html
+    restart: always
+    networks:
+      - mynetwork
+
+  db:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - mynetwork
+    
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 5432
+      PMA_ARBITRARY: 1
+    restart: always
+    networks:
+      - mynetwork
+    
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    links:
+      - db
+    ports:
+      - '5050:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    restart: always
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
